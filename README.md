@@ -14,6 +14,8 @@ This is the codebase for IDEARs - Integrated Disease Explanation and Association
      alt="Markdown Monster icon"
      style="float: left; margin-right: 10px;" />
 
+![]("UKB ML flow-Page-2.drawio.png")
+
 
 ## How to Run
 To ease the configuation, please install Anaconda and set this up in a virtual environment. 
