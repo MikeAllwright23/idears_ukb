@@ -17,10 +17,8 @@ from data_proc import *
 from ml import *
 
 import json
-apoe_set=["Non Carriers","Carriers","All"]
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.inspection import permutation_importance
-di=data_import()
+
+#di=data_import()
 dp=data_proc()
 ml=ml_funcs()
 
@@ -58,6 +56,10 @@ class idears():
 
 		#field lookup table
 		self.df_fields=di.get_field_names()
+
+	def get_field_names():
+
+		return None
 
 	def get_mod_fields():
 		mask=(self.df_fields['Modifiable']==1)
