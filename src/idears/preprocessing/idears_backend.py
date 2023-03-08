@@ -9,24 +9,23 @@ Module to
 """
 
 
-path='../../../data/ukb/ad/'
+
 import sys
-sys.path.append('/Users/michaelallwright/Documents/github/ukb/pipeline/')
-from data_gen import *
-from data_proc import *
-from ml import *
+sys.path.append('/Users/michaelallwright/Documents/github/ukb/codebase1/src/idears/')
 
-import json
+from preprocessing.data_proc import *
+from models.mlv2 import *
 
-#di=data_import()
 dp=data_proc()
 ml=ml_funcs()
+
 
 class idears():
 
 	def __init__(self):	
 
-
+		self.path='/Users/michaelallwright/Documents/data/ukb/'
+		self.field_names=self.path+'metadata/ukb_field_names.xlsx'
 		self.dis_icd10_dict=\
 		{'Diabetes':['E10','E11'],
 		 'MND': ['G122'],
@@ -52,33 +51,36 @@ class idears():
 			'All':['age_when_attended_assessment_centre_f21003_0_0','sex_f31_0_0']}
 
 		# raw data across the board
-		self.df_mod=pd.read_parquet(di.path+"ukb_df_processed2022-11-15.parquet")
+		self.df_mod=pd.read_parquet(self.path+"ukb_df_processed2022-11-15.parquet")
 
 		#field lookup table
-		self.df_fields=di.get_field_names()
-
-	def get_field_names():
+		self.df_fields=pd.read_excel(self.field_names,sheet_name='fieldnames_full')
 
 		return None
 
-	def get_mod_fields():
+	def get_mod_fields(self):
 		mask=(self.df_fields['Modifiable']==1)
-		return df_fields.loc[mask,]
+		return self.df_fields.loc[mask,]
 
-	def find_cols_filt(df):
+	def rename_cols(self,df):
+		#ensures cols can be modelled
+		df = df.rename(columns = lambda x:re.sub('[^A-Za-z0-9_]+', '', x))
+		return df
+
+	def find_cols_filt(self,df):
 		all_col_names=list(self.df_fields['col.name'])
 		cols=[]
 		for c in all_col_names:
 			for d in df.columns:
 				if str(c) in str(d):
 					cols.append(c)
-		mask=df_fields['col.name'].isin(cols)
+		mask=self.df_fields['col.name'].isin(cols)
 		df_fields_filt=self.df_fields.loc[mask,].copy()
 		df_fields_filt['field_type1']=df_fields_filt['field_type1'].astype(str).apply(lambda x:x.strip())     
 					
 		return df_fields_filt
 
-	def df_cols(df,cols):
+	def df_cols(self,df,cols):
 		cols_out=[]
 		for c in cols:
 			for d in df.columns:
@@ -87,21 +89,21 @@ class idears():
 		return cols_out
 
 	def get_col_incidences(self,df,dis,col):
-	    #split col into high and low
-	    mask=pd.notnull(df[col])
-	    df1=df.loc[mask,]
-	    df1[col+'q']=pd.qcut(df1[col],q=2,labels=False).astype(int)
-	    return dict(df1.groupby(col+'q')[dis].mean())
-	    
-    
+		#split col into high and low
+		mask=pd.notnull(df[col])
+		df1=df.loc[mask,]
+		df1[col+'q']=pd.qcut(df1[col],q=2,labels=False).astype(int)
+		return dict(df1.groupby(col+'q')[dis].mean())
+		
+	
 
-	def filt(df,dis,fields_include,extcols):
-		df_fields_filt=find_cols_filt(df,self.df_fields)
+	def filt(self,df,dis,fields_include,extcols):
+		df_fields_filt=self.find_cols_filt(df,self.df_fields)
 
 		mask=df_fields_filt['field_type1'].isin(fields_include)
 		# ensure max 1 of each
 		cols_use=list(set(list(df_fields_filt.loc[mask,'col.name'])+['eid']+extcols+[dis]))
-		cols_use=df_cols(df,cols_use)
+		cols_use=self.df_cols(df,cols_use)
 		return df[cols_use]
 
 	def split_bdown(self,df,bvar='breakdown'):
@@ -120,30 +122,28 @@ class idears():
 
 		if fields_include_use==["All"]:
 			#simple logic when all features selected
-			df3=ml.rename_cols(df3)
+			df3=self.rename_cols(df3)
 		else:
 			if fields_include_use==["Modifiable"]:
 			#modifiable features use a different column to identify
-				cols=[c for c in df3.columns if c=='eid' or c==dis or c in extcols or\
-				c in list(df_fields_mod['col.name'])]
+				cols=[c for c in df3.columns if c=='eid' or c==dis or c in self.gend_dict_extcols[gen] or\
+				c in list(self.df_fields_mod['col.name'])]
 				df3=df3[cols]
-				df3=ml.rename_cols(df3)
+				df3=self.rename_cols(df3)
 			
 			else:
 				#otherwise the fields used are the ones specified
-				df3=filt(df=df3,df_fields=df_fields,fields_include=fields_include_use,dis=dis,extcols=extcols)
-				df3=ml.rename_cols(df3)  
+				df3=self.filt(df=df3,df_fields=self.df_fields,fields_include=fields_include_use,dis=dis,extcols=self.extcols)
+				df3=self.rename_cols(df3)  
 		#pipe joined lookup variable for selections
 		
 		
-		
-		
 		#split train and test data for this filtered dataframe
-		df_tr,df_te=ml.train_test(df=df3,depvar=dis,test_size=0.3,random_state=421)
+		df_tr,df_te=self.train_test(df=df3,depvar=dis,test_size=0.3,random_state=421)
 
 		return df3,bdown,df_tr,df_te 
 
-	def create_train_test(self,extcols,name,fields_include_use,dis_icd10_dict,age_dict,gend_dict):
+	def create_train_test(self,fields_include_use):
 		
 		#set up an empty dictionary to store a list of train and test dataframe within each category
 		df_dict=dict()
@@ -155,7 +155,7 @@ class idears():
 			#loop through the disease name to ICD10 list mapping
 			#create a model dataset for each disease 
 			
-			df2=di.create_model_data(df=df,depvar=dis,icd10s=dis_icd10_dict[dis],infile="ukb_df_processed2022-11-15.parquet")
+			df2=dp.create_model_data(depvar=dis,icd10s=self.dis_icd10_dict[dis],infile="ukb_df_processed2022-11-15.parquet")
 			print(df2.shape)
 			
 			for agex in self.age_dict:
@@ -174,7 +174,7 @@ class idears():
 		
 
 
-	def get_aucs_all(self,df_dict,dis_icd10_dict,age_dict,gend_dict,gend_dict_extcols,dis_exc_vars_dict,iters=10):
+	def get_aucs_all(self,df_dict,gend_dict_extcols,dis_exc_vars_dict,iters=10):
 		
 		aucs=[]
 		bdowns=[]
