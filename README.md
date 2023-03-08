@@ -1,7 +1,3 @@
-# ukb-dementia-shap
- UKB dementia, AD and PD classification and SHAP
-
-# Models to run
 
 # IDEARS - Integrated Disease Explanation and Associations Risk Scoring
 
@@ -14,7 +10,6 @@ This is the codebase for IDEARs - Integrated Disease Explanation and Association
      alt="Markdown Monster icon"
      style="float: left; margin-right: 10px;" />
 
-![]("UKB ML flow-Page-2.drawio.png")
 
 
 ## How to Run
@@ -40,10 +35,10 @@ This folder shows the implementation of the IDEARs platform.
  ┃ ┣ src
  ┃ ┃ ┣ idears
  ┃ ┃ ┃ ┣ 📂 preprocessing        
- ┃ ┃ ┃ ┃  ┣  📜data_proc.py
- ┃ ┃ ┃ ┃  ┣  📜idears_backend.py 
+ ┃ ┃ ┃ ┃  ┣  📜 data_proc.py
+ ┃ ┃ ┃ ┃  ┣  📜 idears_backend.py 
  ┃ ┃ ┃ ┃ 📂 models
- ┃ ┃ ┃ ┃  ┣  mlv2.py       
+ ┃ ┃ ┃ ┃  ┣  📜 mlv2.py       
  ┃ ┃ ┃ ┃ 📂 frontend
  ┃ ┃ ┃ ┣ 📜 app1.py
  ┃ ┣ 
