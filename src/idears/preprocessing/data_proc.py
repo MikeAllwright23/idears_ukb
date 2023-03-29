@@ -97,12 +97,14 @@ class data_proc(object):
 		
 		# bring in processed data
 		df=pd.read_parquet(self.path+infile)	
-		dis_list_out,dis_list_already=self.dis_list(df=None,icd10s=icd10s)
+		dis_list_out,dis_list_already=self.dis_list(icd10s=icd10s)
 
 		#exclude those who already had the disease at baseline or died and were in the control group 
 		#or have a dementia related illness diagnosed and are in the control group
 		cols=self.findcols(df,nonull_var)
-		mask_exc=(((df['death']==1)|(df[cols].count(axis=1)>0))&~(df['eid'].isin(dis_list_out)))|\
+
+		mask_exc=(((df['death']==1)|
+		(df[cols].count(axis=1)>0))&~(df['eid'].isin(dis_list_out)))|\
 	(df['eid'].isin(dis_list_already))
 
 		df=df.loc[~mask_exc,]
@@ -114,4 +116,214 @@ class data_proc(object):
 		
 		#
 		return df
+
+
+class normalisations():
+
+	def __init__(self):	
+
+		self.path='/Users/michaelallwright/Documents/data/ukb/'
+
+	def case_control(self,df,depvar='AD'):
+		"""
+		split into case and control
+		""" 
+		mask=(df[depvar]==1)
+		df_case=df.loc[mask,]
+		df_ctrl=df.loc[~mask,]
+
+		return df_case,df_ctrl
+
+	def ctrl_case_ratios(self,df_case,df_ctrl,normvars):
+		"""
+		determine the ratio of control and case for each normvar denomination
+		"""
+
+		cases=pd.DataFrame(df_case.groupby(normvars).size()).reset_index()
+		ctrls=pd.DataFrame(df_ctrl.groupby(normvars).size()).reset_index()
+
+		if isinstance(normvars, str):
+			normvars=[normvars]
+
+		
+
+		ctrls.columns=normvars+['ctrl_recs']
+		cases.columns=normvars+['case_recs']
+
+		ctrl_case=pd.merge(cases,ctrls,on=normvars,how='inner')
+		ctrl_case['ratio']=(ctrl_case['ctrl_recs']/ctrl_case['case_recs'])
+		
+		return ctrl_case
+
+
+	def varnorm(self,df,normvars,depvar='AD',max_mult=None,delete_df=False):
+
+		"""rebalances dataframe to be equal across case and control as defined by depvar=1/0 across a list of variables which must be present in the data
+		#df1=df.copy()
+		"""
+		df_case,df_ctrl=self.case_control(df,depvar=depvar)
+
+		if delete_df:
+			del df
+
+		ctrl_case=self.ctrl_case_ratios(df_case,df_ctrl,normvars)
+		
+		if max_mult==None:
+			max_mult=ctrl_case['ratio'].min()
+
+		ctrl_case['case_samp']=max_mult
+
+		return ctrl_case ,df_ctrl,df_case#,cases
+
+	def varnorm_sample(self,df,normvars,depvar,max_mult=None):
+		#
+		ctrl_case,df_ctrl,df_case=self.varnorm(df,normvars=normvars,depvar=depvar,delete_df=False)
+		ctrl_case['recs_sample']=(ctrl_case['case_recs']*ctrl_case['case_samp']).apply(lambda x:np.floor(x)).astype(int)
+		df_ctrl=pd.merge(df_ctrl,ctrl_case[normvars+['recs_sample']],on=normvars)
+		df_ctrl=pd.DataFrame(df_ctrl.groupby(normvars).\
+		apply(lambda x: x.sample(x['recs_sample'].iat[0]))).reset_index(drop=True)
+		
+		df_out=pd.concat([df_ctrl,df_case],axis=0)
+		return df_out
+
+
+	def eids_var_to_dict(self,df,normvars=['age_when_attended_assessment_centre_f21003_0_0']):
+
+		"""
+		create a dictionary of a normalisation variable and lists of unique eids associated with that variable
+		"""
+
+		
+		normvar=''.join(normvars)
+
+
+		normvar_list=[c for c in list(df[normvar].unique())]
+		normvar_eids=[list(df.loc[(df[normvar]==c,'eid')]) for c in list(df[normvar].unique())]
+		normvar_eid_dict=dict(zip(normvar_list,normvar_eids))
+
+		return normvar_eid_dict
+
+	def normvar_samplesize_dict(self,df,norm_var):
+
+		"""
+		determine sample size for each normvar as a dictionary - applies to ctrl_case
+		"""
+		"""if len(norm_vars)==1:
+									df['a_var']=df[norm_vars[0]].astype(str)
+								elif len(norm_vars)==2:
+									df['a_var']=df[norm_vars[0]].astype(str)+df[norm_vars[1]].astype(str)
+						"""
+		
+
+		df['sample_size']=(df['ratio'].min()*df['case_recs']).apply(np.floor)
+		out_dict=dict(zip(df[norm_var],df['case_recs'].astype(int)))
+
+		return out_dict
+
+
+	def get_indices(self,list_in,start_pos=1000,length=800):
+	
+		#returns new list taking ino account length of existing list
+	
+		end_pos=start_pos+length
+		length_list=len(list_in)
+		
+		
+		if length_list>end_pos:
+			#print("yes")
+			#end_pos=start_pos+b
+			list_out=list_in[start_pos:end_pos]
+			start_pos_new=end_pos
+			
+		else:
+			new_len=end_pos-length_list
+
+			list_out1=list_in[start_pos:length_list]
+			list_out2=list_in[0:new_len]
+			
+			list_out=list_out1+list_out2
+			start_pos_new=new_len
+	
+		return list_out,start_pos_new
+
+	def split_mult_files(self,df,depvar="AD",normvars=['age_when_attended_assessment_centre_f21003_0_0'],iterations=50,mult_fact_max=True,
+		multfact=1):
+
+		#purpose to take dataframe and create iterative Monte Carlo based datasets which use all the case data and selectively spread
+		#across the control space so all controls which are variable normalised get used
+
+		#convert normvars to one sngle string
+		normvar=''.join(normvars)
+
+		df1=df.copy()
+
+		#concatenate values for each norm var
+		for i in range(len(normvars)):
+			if i==0:
+				df1[normvar]=df1[normvars[i]].astype(str)
+			else:
+				df1[normvar]=df1[normvar]+df1[normvars[i]].astype(str)
+
+
+		ctrl_case,df_ctrl,df_case=self.varnorm(df1,normvar,depvar=depvar,max_mult=None,delete_df=False)
+
+		case_eids=list(df_case['eid'])
+
+		normvar_eid_dict=self.eids_var_to_dict(df=df_ctrl,normvars=normvars)
+
+		normvar_sample_size_dict=self.normvar_samplesize_dict(df=ctrl_case,norm_var=normvar)
+
+		#reset the dictionaries to ensure the elements are present in both
+		normvar_eid_dict=\
+	dict(zip([a for a in normvar_eid_dict if a in normvar_sample_size_dict],\
+	[normvar_eid_dict[a] for a in normvar_eid_dict if a in normvar_sample_size_dict]))
+
+		normvar_sample_size_dict=\
+	dict(zip([a for a in normvar_sample_size_dict if a in normvar_eid_dict],\
+	[normvar_sample_size_dict[a] for a in normvar_sample_size_dict if a in normvar_eid_dict]))
+
+
+
+		mult_fact_max_val=int(min([np.floor(len(normvar_eid_dict[a])/normvar_sample_size_dict[a]) for a in normvar_eid_dict]))
+
+		if mult_fact_max is True:
+			multfact=mult_fact_max_val
+
+
+		#max_mult
+
+		#print(normvar_eid_dict)
+
+		eids_all=[]
+
+		map_dict=dict()
+		start_pos_dict=dict()
+		
+		for i in range(iterations):
+
+
+			eids_iter=[]
+
+			for a in normvar_eid_dict:
+
+				
+				if i==0:
+					list_out,start_pos_new=self.get_indices(normvar_eid_dict[a],start_pos=0,
+						length=normvar_sample_size_dict[a]*multfact)
+					start_pos_dict[a]=start_pos_new
+					#eids_normvars.append(list_out)
+					
+				else:
+					list_out,start_pos_new=self.get_indices(normvar_eid_dict[a],start_pos=start_pos_dict[a],
+						length=normvar_sample_size_dict[a]*multfact)
+					start_pos_dict[a]=start_pos_new
+
+				eids_iter=eids_iter+list_out
+
+			map_dict[i]=eids_iter+case_eids
+
+
+
+
+		return map_dict
 

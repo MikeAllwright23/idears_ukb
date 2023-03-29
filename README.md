@@ -3,7 +3,7 @@
 
 ## Overview
 
-This is the codebase for IDEARs - Integrated Disease Explanation and Associations Risk Scoring. Its overall architecture is shown below.
+This is the codebase for IDEARs - The Integrated Disease Explanation and Associations Risk Scoring. Its overall architecture is shown below.
 
 
 <img src="UKB ML flow-Page-2.drawio.png"

@@ -17,6 +17,7 @@ from preprocessing.data_proc import *
 from models.mlv2 import *
 
 dp=data_proc()
+nm=normalisations()
 ml=ml_funcs()
 
 
@@ -126,6 +127,9 @@ class idears():
 		else:
 			if fields_include_use==["Modifiable"]:
 			#modifiable features use a different column to identify
+				mask=self.df_fields['Modifiable']==1
+				df_fields_mod=self.df_fields.loc[mask,]
+				
 				cols=[c for c in df3.columns if c=='eid' or c==dis or c in self.gend_dict_extcols[gen] or\
 				c in list(self.df_fields_mod['col.name'])]
 				df3=df3[cols]
@@ -133,7 +137,7 @@ class idears():
 			
 			else:
 				#otherwise the fields used are the ones specified
-				df3=self.filt(df=df3,df_fields=self.df_fields,fields_include=fields_include_use,dis=dis,extcols=self.extcols)
+				df3=self.filt(df=df3,df_fields=self.df_fields,fields_include=fields_include_use,dis=dis,extcols=self.gend_dict_extcols[gen])
 				df3=self.rename_cols(df3)  
 		#pipe joined lookup variable for selections
 		
@@ -143,25 +147,46 @@ class idears():
 
 		return df3,bdown,df_tr,df_te 
 
-	def create_train_test(self,fields_include_use):
+	def train_test(self,df,depvar='AD',test_size=0.3,random_state=42):
+		# splits in random state train and test for given depvar
+
+		mask=(df[depvar]==1)
+		cases=df.loc[mask,]
+		ctrls=df.loc[~mask,]
+		test_case=cases.sample(frac=test_size,random_state=random_state)
+		test_ctrl=ctrls.sample(frac=test_size,random_state=random_state)
+		df_test=pd.concat([test_case,test_ctrl],axis=0)
+		mask=~(df['eid'].isin(df_test['eid']))
+		df_train=df.loc[mask,]
+		return df_train,df_test
+
+	def create_train_test(self,fields_include_use,ages=None,gends=None,diseases=None):
 		
 		#set up an empty dictionary to store a list of train and test dataframe within each category
 		df_dict=dict()
 
 		#initiate df
 		df=self.df_mod.copy()
+
+		if ages is None:
+			ages=self.age_dict
+		if gends is None:
+			ages=self.gend_dict
+		if diseases is None:
+			diseases=self.dis_icd10_dict
+
 		
-		for dis in self.dis_icd10_dict:
+		for dis in diseases:
 			#loop through the disease name to ICD10 list mapping
 			#create a model dataset for each disease 
 			
-			df2=dp.create_model_data(depvar=dis,icd10s=self.dis_icd10_dict[dis],infile="ukb_df_processed2022-11-15.parquet")
-			print(df2.shape)
+			df2=dp.create_model_data(depvar=dis,icd10s=diseases[dis],infile="ukb_df_processed2022-11-15.parquet")
+			print(df2[dis].sum())
 			
-			for agex in self.age_dict:
+			for agex in ages:
 				#loop through the age ranges specified
 				
-				for genx in self.gend_dict:
+				for genx in gends:
 					#loop through the genders specified
 
 					df3,bdown,df_tr,df_te=self.determine_cols(fields_include_use=fields_include_use,dis=dis,df=df2,age=agex,gen=genx)
@@ -174,16 +199,24 @@ class idears():
 		
 
 
-	def get_aucs_all(self,df_dict,gend_dict_extcols,dis_exc_vars_dict,iters=10):
+	def get_aucs_all(self,df_dict,gend_dict_extcols,dis_exc_vars_dict,iters=10,ages=None,gends=None,diseases=None):
 		
 		aucs=[]
 		bdowns=[]
 		feats_full=pd.DataFrame([])
 
+		if ages is None:
+			ages=self.age_dict
+		if gends is None:
+			ages=self.gend_dict
+		if diseases is None:
+			diseases=self.dis_icd10_dict
 
-		for dis in self.dis_icd10_dict: 
-			for agex in self.age_dict:
-				for genx in self.gend_dict:
+
+
+		for dis in diseases: 
+			for agex in ages:
+				for genx in gends:
 						
 					bdown='|'.join([dis,agex,genx])
 		
@@ -210,11 +243,11 @@ class idears():
 					df_test1=df_test1[keepcols]
 					
 					#split normalised datasets for training data
-					df_dict1_a=dp.split_mult_files(df=df_train1,depvar=dis,\
+					df_dict1_a=nm.split_mult_files(df=df_train1,depvar=dis,\
 					normvars=gend_dict_extcols[genx],iterations=iters,mult_fact_max=1)
 					
 					#split normalised datasets for test data
-					df_dict1_a_test=dp.split_mult_files(df=df_test1,depvar=dis,\
+					df_dict1_a_test=nm.split_mult_files(df=df_test1,depvar=dis,\
 					normvars=gend_dict_extcols[genx],iterations=iters,mult_fact_max=1)
 
 
