@@ -6,10 +6,16 @@
 This is the codebase for IDEARs - The Integrated Disease Explanation and Associations Risk Scoring. Its overall architecture is shown below.
 
 
-<img src="UKB ML flow-Page-2.drawio.png"
+<img src="fig2.png"
      alt="Markdown Monster icon"
      style="float: left; margin-right: 10px;" />
 
+
+The code is designed to represent the following situation for prospective studies
+
+<img src="fig1.png"
+     alt="Markdown Monster icon"
+     style="float: left; margin-right: 10px;" />
 
 
 ## How to Run
@@ -40,8 +46,10 @@ This folder shows the implementation of the IDEARs platform.
  ┃ ┃ ┃ ┃ 📂 models
  ┃ ┃ ┃ ┃  ┣  📜 mlv2.py       
  ┃ ┃ ┃ ┃ 📂 frontend
- ┃ ┃ ┃ ┣ 📜 app1.py
- ┃ ┣ 
+ ┃ ┃ ┃ ┣ ┣ 📜 app1.py
+ ┃ ┣ applications
+ ┃ ┃ ┃-AD
+ ┃ ┃ ┃-PD
  ┣ 📜config.yaml
  ┣ 📜requirements.txt
  ┣ 📜main.py
