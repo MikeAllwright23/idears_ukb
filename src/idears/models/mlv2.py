@@ -10,6 +10,7 @@ import os
 import shap
 #from boruta import BorutaPy
 from xgboost import XGBClassifier,plot_importance
+from sklearn.metrics import roc_auc_score, precision_score, recall_score, f1_score
 
 from scipy.stats import norm
 
@@ -21,10 +22,10 @@ class ml_funcs(object):
 	def __init__(self):
 
 
-        # import path
+		# import path
 		self.path='/Users/michaelallwright/Documents/data/ukb/'
 
-        #words to remove
+		#words to remove
 		self.remwords=['Polymorphic','dementia','driving','eid','length_of_mobile_phone_use_f1110_0_0',\
 'intercourse','job_code','date','records_in_hes','_speciality','death','sample_dilution','hospital_recoded','uk_biobank_assessment_centre',
 'number_of_blood_samples_taken','ordering_of_blows','treatmentmedication_code','spirometry','carer_support_indicators',
@@ -111,3 +112,9 @@ columns=['model_feature_importance','Attribute'])
 		df_s=self.feats_out(shap_values,X,model)
 
 		return df_s
+
+	def auc_score(self,valid_x,valid_y,model,mod_name='XGB'):
+		pred=model.predict_proba(valid_x)[:, 1]
+		score = roc_auc_score(valid_y,pred)
+		print('AUC '+mod_name+': ',str(score))
+		return score

@@ -8,47 +8,36 @@ Module to
 
 """
 
-
+# Import all required libraries
 import numpy as np
 import pandas as pd
 import re
+import os
 import sys
 import matplotlib.pyplot as plt
-import os
-
-import miceforest as mf
-
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score, precision_score, recall_score, f1_score
-
-import lightgbm as lgb
-from xgboost import XGBClassifier,plot_importance
-from sklearn.ensemble import RandomForestClassifier
-
-
 from sklearn.pipeline import make_pipeline
 from sklearn.svm import SVC
-
 from sklearn import linear_model 
-
 from sklearn.preprocessing import StandardScaler
-
+from sklearn.ensemble import RandomForestClassifier
+import miceforest as mf
+import lightgbm as lgb
+from xgboost import XGBClassifier,plot_importance
 import shap
 from boruta import BorutaPy
-
 from scipy.stats import norm
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
-
 import seaborn as sns
-
-
 
 
 class ml_funcs(object):
 
 	def __init__(self):
 
+		#set path where data is stored
 		self.path='/Users/michaelallwright/Documents/data/ukb/'
 
 		self.remwords=['Polymorphic','dementia','driving','eid','length_of_mobile_phone_use_f1110_0_0',\
@@ -59,7 +48,7 @@ class ml_funcs(object):
 		#xgb classifier model
 		self.mod_xgb_base=XGBClassifier()
 
-		#POS WEIGHT CHANGE
+		#hyperparameter tuned model
 		self.mod_xgb=XGBClassifier(base_score=0.5, booster='gbtree',  scale_pos_weight=1,colsample_bylevel=1,\
 colsample_bynode=1, learning_rate=0.1,max_delta_step=0,  missing=1, n_estimators=60, n_jobs=4, \
 nthread=4, objective='binary:logistic',random_state=0, reg_alpha=0, reg_lambda=1,\
@@ -81,7 +70,7 @@ metric= 'auc',num_leaves= 10,verbose= -1,min_data= 1000,boost_from_average= True
 		self.log_reg = linear_model.LogisticRegression(max_iter=10000)
 		self.log_reg = linear_model.LogisticRegression(max_iter=10000,solver="saga",penalty='elasticnet',l1_ratio=0.3)
 
-
+		#known columns to be important for AD
 		self.all_known_cols=['dementia','age_when_attended_assessment_centre_f21003_0_0','APOE4_Carriers',\
 'pollution','sedentary_time','diabetes_diagnosed_by_doctor_f2443_0_0','low_activity','salad_raw_vegetable_intake_f1299_0_0',\
 'fresh_fruit_intake_f1309_0_0','weight_change_compared_with_1_year_ago_f2306_0_0',\
@@ -93,11 +82,13 @@ metric= 'auc',num_leaves= 10,verbose= -1,min_data= 1000,boost_from_average= True
 'number_of_incorrect_matches_in_round_f399_0_2','sex_f31_0_0','hypertension','ever_smoked_f20160_0_0','alcohol','TBI',\
 'Hear_loss','Qualif_Score']
 
+		#Specific consensus risk factors in AD
 		self.livingstone_cols=['sex_f31_0_0','age_when_attended_assessment_centre_f21003_0_0','APOE4_Carriers','TBI','hearing_difficultyproblems_f2247_0_0',\
 		'alcohol','pollution','hypertension','diabetes_diagnosed_by_doctor_f2443_0_0','Hear_loss','ever_smoked_f20160_0_0','body_mass_index_bmi_f21001_0_0',\
 		'depressed','smoking_status_f20116_0_0','ipaq_activity_group_f22032_0_0','Qualif_Score','frequency_of_friendfamily_visits_f1031_0_0']
 
 	def varmap(self):
+		#Function to generate a map dictionary of UKB variables to plain English
 		varmap = {}
 		with open(self.path+"metadata/varmap.txt") as myfile:
 			for line in myfile:
@@ -110,6 +101,7 @@ metric= 'auc',num_leaves= 10,verbose= -1,min_data= 1000,boost_from_average= True
 		return varmap
 
 	def map_var(self,df,var_):
+		#Function to map UKB variable column names to plain English
 		df['var_mapped']=df[var_].map(self.varmap())
 		mask=pd.notnull(df['var_mapped'])
 		df.loc[mask,var_]=df.loc[mask,'var_mapped']
@@ -119,7 +111,7 @@ metric= 'auc',num_leaves= 10,verbose= -1,min_data= 1000,boost_from_average= True
 
 
 	def get_cols_with_string(self,df,remstrings=None):
-		#remove columns with certain strings from dataframe
+		#remove columns containing certain strings from dataframe
 
 		if remstrings is None:
 			remstrings=self.remwords
@@ -165,6 +157,7 @@ c[len(c)-3:len(c)]=='2_0' or c[len(c)-3:len(c)]=='3_0' or c[len(c)-3:len(c)]=='0
 
 
 	def impute_mice(self,df,cols,iters=3):
+		#uses mice package for a pre-defined set of columns on a database to impute
 		kernel = mf.ImputationKernel(
 		data=df[cols],
 		save_all_iterations=True,
@@ -175,6 +168,7 @@ c[len(c)-3:len(c)]=='2_0' or c[len(c)-3:len(c)]=='3_0' or c[len(c)-3:len(c)]=='0
 		return df
 
 	def train_test(self,df,depvar='AD',test_size=0.3,random_state=42):
+		#splits data to train and test
 		mask=(df[depvar]==1)
 		cases=df.loc[mask,]
 		ctrls=df.loc[~mask,]
@@ -261,16 +255,19 @@ agg({'mean_shap':'mean','model_feature_importance':'mean','shap_model_fi':'mean'
 		return df_bor_fin
 
 	def model_fit(self,mod,train_x, train_y):
+		#fits a model given the model, training and validation data -returns trained model
 		model=mod.fit(train_x, train_y)
 		return model
 
 	def auc_score(self,valid_x,valid_y,model,mod_name='XGB'):
+		#return AUC score of a model applied to validation data
 		pred=model.predict_proba(valid_x)[:, 1]
 		score = roc_auc_score(valid_y,pred)
 		print('AUC '+mod_name+': ',str(score))
 		return score
 
 	def prec_recall_score(self,valid_x,valid_y,model,mod_name='XGB'):
+		#returns precision,recall and AUC for given model and validation data
 		pred=model.predict(valid_x)
 		pred_prob=model.predict_proba(valid_x)[:, 1]
 		prec_score = precision_score(valid_y,pred)
