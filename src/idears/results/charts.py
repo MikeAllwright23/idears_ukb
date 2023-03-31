@@ -86,14 +86,14 @@ class charts():
 		ax.xaxis.set_tick_params(labeltop=True,      # Put x-axis labels on top
 								labelbottom=False,  # Set no x-axis labels on bottom
 								bottom=False,       # Set no ticks on bottom
-								labelsize=15,       # Set tick label size
+								labelsize=11,       # Set tick label size
 								pad=-1)             # Lower tick labels a bit
 
 		# Reformat y-axis tick labels
 		ax.set_yticklabels(df_bar['Attribute'],      # Set labels again
 						ha = 'left')              # Set horizontal alignment to left
 		ax.yaxis.set_tick_params(pad=300,            # Pad tick labels so they don't go over y-axis
-								labelsize=15,       # Set label size
+								labelsize=11,       # Set label size
 								bottom=False)       # Set no ticks on bottom/left
 
 		# Shrink y-lim to make plot a bit tighter

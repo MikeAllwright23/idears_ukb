@@ -283,96 +283,96 @@ class idears():
 
 		return df_auc,feats_full
 
-		def get_avg_vals(df_dict,dis_icd10_dict,age_dict,gend_dict):
+	def get_avg_vals(df_dict,dis_icd10_dict,age_dict,gend_dict):
+	
+		bdowns=[]
+		cols=[]
+		case_means=[]
+		ctrl_means=[]
+		pvals=[]
 		
-			bdowns=[]
-			cols=[]
-			case_means=[]
-			ctrl_means=[]
-			pvals=[]
-			
-			for dis in self.dis_icd10_dict: 
-				for agex in self.age_dict:
-					for genx in self.gend_dict:
-						
-						bdown='|'.join([dis,agex,genx])
-			
-						print(bdown)
-
-						df_train1,df_test1=df_dict[bdown]
-						#df1=pd.concat([df_train1,df_test1])
-						df1=df_test1.copy()
-						
-						remwords='|'.join([c for c in ml.remwords if c!='eid'])+'|'+'recent_feelings_of_tiredness_or_low'
-
-						remcols=[c for c in df1.columns if re.search(remwords,c.lower())
-								 or ('obj' in str(df1[c].dtype)) or c==dis]
-						
-						cols_compare=[c for c in df1.columns if c not in remcols ]
-						
-						for k in cols_compare:
-							mask=(df1[dis]==1)&pd.notnull(df1[k])
-							mask1=(df1[dis]==0)&pd.notnull(df1[k])
-							case_val=df1.loc[mask,k].mean()
-							ctrl_val=df1.loc[mask1,k].mean()
-							
-							pval=stats.ttest_ind(df1.loc[mask,k], df1.loc[mask1,k])[1]
-							
-							bdowns.append(bdown)
-							cols.append(k)
-							case_means.append(case_val)
-							ctrl_means.append(ctrl_val)
-							pvals.append(pval)
-							
-			df_avg_vals=pd.DataFrame({'breakdown':bdowns,'Attribute':cols,'case_mean':case_means,
-									  'ctrl_mean':ctrl_means,'p value':pvals})
-			
-			df_avg_vals=split_bdown(df_avg_vals,bvar='breakdown')
-			
-			return df_avg_vals
-
-		def pop_char1(self,df_dict,dis,age,gen):
-
-			bdown='|'.join([dis,agex,genx])
-				
-			print(bdown)
-
-			df_train1,df_test1=df_dict[bdown]
-			df1=pd.concat([df_train1,df_test1])
-			#df1=df_test1.copy()
-			
-			mask=(df1[dis]==1)
-			
-			age_mean=round(df1['age_when_attended_assessment_centre_f21003_0_0'].mean(),2)
-			age_std=round(df1['age_when_attended_assessment_centre_f21003_0_0'].std(),2)
-			
-			casenum=df1.loc[mask,].shape[0]
-			ctrlnum=df1.loc[~mask,].shape[0]
-
-			return bdown,age_mean,age_std,casenum,ctrlnum
-
-		def get_pop_chars(df_dict,dis_icd10_dict,age_dict,gend_dict):
+		for dis in self.dis_icd10_dict: 
+			for agex in self.age_dict:
+				for genx in self.gend_dict:
+					
+					bdown='|'.join([dis,agex,genx])
 		
-			bdowns=[]
-			age_means=[]
-			age_stds=[]
-			cases=[]
-			controls=[]
-			
-			for dis in self.dis_icd10_dict: 
-				for agex in self.age_dict:
-					for genx in self.gend_dict:
+					print(bdown)
 
-						bdown,age_mean,age_std,casenum,ctrlnum=self.pop_char1(df_dict,dis=dis,age=agex,gen=genx)
+					df_train1,df_test1=df_dict[bdown]
+					#df1=pd.concat([df_train1,df_test1])
+					df1=df_test1.copy()
+					
+					remwords='|'.join([c for c in ml.remwords if c!='eid'])+'|'+'recent_feelings_of_tiredness_or_low'
 
+					remcols=[c for c in df1.columns if re.search(remwords,c.lower())
+								or ('obj' in str(df1[c].dtype)) or c==dis]
+					
+					cols_compare=[c for c in df1.columns if c not in remcols ]
+					
+					for k in cols_compare:
+						mask=(df1[dis]==1)&pd.notnull(df1[k])
+						mask1=(df1[dis]==0)&pd.notnull(df1[k])
+						case_val=df1.loc[mask,k].mean()
+						ctrl_val=df1.loc[mask1,k].mean()
+						
+						pval=stats.ttest_ind(df1.loc[mask,k], df1.loc[mask1,k])[1]
+						
 						bdowns.append(bdown)
-						age_means.append(age_mean)
-						age_stds.append(age_std)
-						cases.append(casenum)
-						controls.append(ctrlnum)
-							
-			df_out=pd.DataFrame({'breakdown':bdowns,'mean_age':age_means,'std_age':age_stds,'cases':cases,'controls':controls})
+						cols.append(k)
+						case_means.append(case_val)
+						ctrl_means.append(ctrl_val)
+						pvals.append(pval)
+						
+		df_avg_vals=pd.DataFrame({'breakdown':bdowns,'Attribute':cols,'case_mean':case_means,
+									'ctrl_mean':ctrl_means,'p value':pvals})
+		
+		df_avg_vals=split_bdown(df_avg_vals,bvar='breakdown')
+		
+		return df_avg_vals
+
+	def pop_char1(self,df_dict,dis,age,gen):
+
+		bdown='|'.join([dis,agex,genx])
 			
-			df_out=split_bdown(df_out)
-			
-			return df_out
+		print(bdown)
+
+		df_train1,df_test1=df_dict[bdown]
+		df1=pd.concat([df_train1,df_test1])
+		#df1=df_test1.copy()
+		
+		mask=(df1[dis]==1)
+		
+		age_mean=round(df1['age_when_attended_assessment_centre_f21003_0_0'].mean(),2)
+		age_std=round(df1['age_when_attended_assessment_centre_f21003_0_0'].std(),2)
+		
+		casenum=df1.loc[mask,].shape[0]
+		ctrlnum=df1.loc[~mask,].shape[0]
+
+		return bdown,age_mean,age_std,casenum,ctrlnum
+
+	def get_pop_chars(df_dict,dis_icd10_dict,age_dict,gend_dict):
+	
+		bdowns=[]
+		age_means=[]
+		age_stds=[]
+		cases=[]
+		controls=[]
+		
+		for dis in self.dis_icd10_dict: 
+			for agex in self.age_dict:
+				for genx in self.gend_dict:
+
+					bdown,age_mean,age_std,casenum,ctrlnum=self.pop_char1(df_dict,dis=dis,age=agex,gen=genx)
+
+					bdowns.append(bdown)
+					age_means.append(age_mean)
+					age_stds.append(age_std)
+					cases.append(casenum)
+					controls.append(ctrlnum)
+						
+		df_out=pd.DataFrame({'breakdown':bdowns,'mean_age':age_means,'std_age':age_stds,'cases':cases,'controls':controls})
+		
+		df_out=split_bdown(df_out)
+		
+		return df_out
