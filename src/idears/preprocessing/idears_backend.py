@@ -453,7 +453,7 @@ if __name__=='__main__':
 	"""
 	Generate all key data so we can run and output to a given location
 	"""
-	run_shap=True
+	run_shap=False
 
 	ib=Idears()
 	print("start")
@@ -471,6 +471,6 @@ if __name__=='__main__':
 	df_feats_sum=pd.read_csv(ib.path+'df_feats_sum.csv')
 	cols_compare=list(df_feats_sum.sort_values(by='mean_shap',ascending=False)['Attribute_original'])
 	#print(cols_compare)
-	df_avg_vals=ib.get_avg_vals(df_dict,cols_compare,diseases={'AD':['G30']})
+	df_avg_vals=ib.get_avg_vals(df_dict,cols_compare,diseases=None)#{'AD':['G30']})
 	df_avg_vals.to_csv(ib.path+'df_avg_vals.csv')
    

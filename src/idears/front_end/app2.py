@@ -124,11 +124,20 @@ with st.spinner('Updating Report...'):
         #g2.plotly_chart(st.pyplot(fig), use_container_width=True)
 
         var_sel=st.selectbox("Select Variable to Compare",list(df_avg_vals['Attribute'].unique()))
+        df_avg_vals['disease']=df_avg_vals['breakdown'].apply(lambda x:x.split('|')[0])
         
+        df_avg_vals['age']=df_avg_vals['breakdown'].apply(lambda x:x.split('|')[1])
+        df_avg_vals['gender']=df_avg_vals['breakdown'].apply(lambda x:x.split('|')[2])
+        df_avg_vals['APOE4']=df_avg_vals['breakdown'].apply(lambda x:x.split('|')[3])
+        df_avg_vals_sum=pd.melt(df_avg_vals,id_vars=['disease','age','gender','APOE4','Attribute','p value'],value_vars=['case_mean','ctrl_mean'])
+        #mask=(df_avg_vals_sum['Attribute'].str.contains('igf1'))
+        #df_avg_vals_sum=df_avg_vals_sum.loc[mask,]
+
+        df_avg_vals_sum['pval']=df_avg_vals_sum['p value'].apply(lambda x:"(***)" if x<0.001 else ("(**)" if x<0.01 else "(*)" if x<0.05 else "ns"))
+
        
-       
-        df_avg_vals_sum=pd.melt(df_avg_vals,id_vars=['breakdown','Attribute','p value'],value_vars=['case_mean','ctrl_mean'])
-        mask=(df_avg_vals_sum['breakdown']==bdown)&(df_avg_vals_sum['Attribute']==var_sel)
+        #df_avg_vals_sum=pd.melt(df_avg_vals,id_vars=['breakdown','Attribute','p value'],value_vars=['case_mean','ctrl_mean'])
+        mask=(df_avg_vals_sum['Attribute']==var_sel)&(df_avg_vals_sum['disease']==diseases)#(df_avg_vals_sum['breakdown']==bdown)&
         df_avg_vals_sum=df_avg_vals_sum.loc[mask,]
 
         st.write("Summary for "+var_sel)
@@ -142,8 +151,18 @@ with st.spinner('Updating Report...'):
         else:
             pval="not significant"
         st.write(var_sel+" is "+pval+" for comparing "+diseases+" to control")
-        fig = px.bar(df_avg_vals_sum, x='value', y='variable')
-        g1,g2 = st.columns((1,1))
+
+       
+        fig = px.bar(df_avg_vals_sum, x="age", y="value", color="variable", barmode="group",
+             facet_row="gender", facet_col="APOE4",
+             category_orders={"gender": ["Male","Female"],
+                              "age":["50-60","50-70","55-70","60-70"],
+                              "APOE4": ["Carriers", "Non Carriers"]},text='pval')
+        #fig.show()
+        
+        #fig = px.bar(df_avg_vals_sum, x='value', y='variable',text_auto=True)
+        fig.update_traces(textfont_size=15, textangle=90, textposition="inside", cliponaxis=True)
+        g1,g2 = st.columns((100,1))
         g1.plotly_chart(fig, use_container_width=True) 
        
 
