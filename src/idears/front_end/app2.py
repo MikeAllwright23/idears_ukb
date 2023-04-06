@@ -12,8 +12,9 @@ from numerize import numerize
 
 import sys
 #change sys path based on where code sits for you
-#sys.path.append('/Users/michaelallwright/Documents/github/ukb/codebase1/src/idears/')
-
+sys.path.append('../')
+import os
+#st.write(os.listdir('../'))
 from preprocessing.idears_backend import *
 from results.charts import charts
 
