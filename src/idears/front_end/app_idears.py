@@ -25,6 +25,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 from pathlib import Path
+from numerize import numerize
+
 
 import sys
 #change sys path based on where code sits for you
@@ -102,15 +104,17 @@ if app_mode=="Risk Factors":
 
 	dis_dict={}
 
-	Expname=st.text_input("Enter a description of the experiment you're running")
-	fields=[st.selectbox("Choose which fields to model",['All','Modifiable'])]
+	m2, m3, m4, m5,m6 = st.columns((1,1,1,1,1))
+
+	m2.Expname=st.text_input("Enter a description of the experiment you're running")
+	m3.fields=[st.selectbox("Choose which fields to model",['All','Modifiable'])]
 
 	dis = st.text_input("Enter a disease name")
-	icd10s = st.text_input("Enter icd10s separated with the | symbol")
+	m4.icd10s = st.text_input("Enter icd10s separated with the | symbol")
 	diseases=dict({dis:icd10s.split('|')})
 
-	ages=[st.selectbox("Choose which age ranges to model",['50-60','60-70','55-70'])]
-	gends=[st.selectbox("Choose which genders to model",['All','Male','Female'])]
+	m5.ages=[st.selectbox("Choose which age ranges to model",['50-60','60-70','55-70'])]
+	m6.gends=[st.selectbox("Choose which genders to model",['All','Male','Female'])]
 
 	norms=[st.selectbox("Choose normalisation fields",['age_when_attended_assessment_centre_f21003_0_0'])]
 	gend_dict_extcols={gends[0]: norms}

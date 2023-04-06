@@ -137,6 +137,78 @@ class charts():
 		return fig,df_bar           # Set background color to white
 	
 
+	def dumbell_plot(self,df,att_var,var1,var2):
+		# Setup plot size.
+		fig, ax = plt.subplots(figsize=(6,9))
+
+		# Create grid 
+		# Zorder tells it which layer to put it on. We are setting this to 1 and our data to 2 so the grid is behind the data.
+		ax.grid(which="major", axis='both', color='#758D99', alpha=0.6, zorder=1)
+
+		# Remove splines. Can be done one at a time or can slice with a list.
+		ax.spines[['top','right','bottom']].set_visible(False)
+
+		# Setup data
+		gdp_dumbbell = df.copy()
+
+		# Plot data
+		# Plot horizontal lines first
+		ax.hlines(y=df[att_var], xmin=df[[var1,var2]].min(axis=1), xmax=df[[var1,var2]].max(axis=1), color='#758D99', zorder=2, linewidth=2, label='_nolegend_', alpha=.8)
+		# Plot bubbles next
+		ax.scatter(df[var1], df[att_var], label=var1, s=60, color='#006BA2', zorder=3)
+		ax.scatter(df[var2], df[att_var], label=var2, s=60, color='#DB444B', zorder=3)
+
+		# Set xlim
+		x_min=df[[var1,var2]].min(axis=1).min()-0.1
+		x_max=df[[var1,var2]].max(axis=1).max()+0.1
+
+		print(x_min,x_max)
+		ax.set_xlim(x_min, x_max)
+
+		# Reformat x-axis tick labels
+		ax.xaxis.set_tick_params(labeltop=True,      # Put x-axis labels on top
+								labelbottom=False,  # Set no x-axis labels on bottom
+								bottom=False,       # Set no ticks on bottom
+								labelsize=15,       # Set tick label size
+								pad=-1)             # Lower tick labels a bit
+
+		# Reformat y-axis tick labels
+		ax.set_yticklabels(gdp_dumbbell[att_var],       # Set labels again
+						ha = 'left')              # Set horizontal alignment to left
+		ax.yaxis.set_tick_params(pad=300,            # Pad tick labels so they don't go over y-axis
+								labelsize=15,       # Set label size
+								bottom=False)       # Set no ticks on bottom/left
+
+		# Set Legend
+		ax.legend([var1,var2], loc=(-0.9,1.09), ncol=2, frameon=False, handletextpad=-.1, handleheight=1)
+
+		# Add in line and tag
+		ax.plot([-0.59	, .9],                 # Set width of line
+				[1.17, 1.17],                # Set height of line
+				transform=fig.transFigure,   # Set location relative to plot
+				clip_on=False, 
+				color='#E3120B', 
+				linewidth=.6)
+		ax.add_patch(plt.Rectangle((-0.59,1.17),               # Set location of rectangle by lower left corder
+								0.05,                       # Width of rectangle
+								-0.025,                      # Height of rectangle. Negative so it goes down.
+								facecolor='#E3120B', 
+								transform=fig.transFigure, 
+								clip_on=False, 
+								linewidth = 0))
+
+		
+		# Add in title and subtitle
+		ax.text(x=-0.59, y=1.09, s='SHAP Comparisons', transform=fig.transFigure, ha='left', fontsize=16, weight='bold', alpha=.8)
+		ax.text(x=-0.59, y=1.04, s="Difference between groups", transform=fig.transFigure, ha='left', fontsize=14, alpha=.8)
+
+		# Set source text
+		ax.text(x=-0.59, y=0.04, s="""Source: "UKB""", transform=fig.transFigure, ha='left', fontsize=9, alpha=.7)
+
+
+		return fig,ax
+	
+
 	def analysis_boxplots(self,df,dis_date='parkins_date',disease='PD',vars=['igf1_f30770_0_0'],
 	splitvar='sex_f31_0_0',agemin=50,agemax=70,labels=dict({1:'Female',0:'Male'}),varnames='test',exc_deaths=False,dis_label=True,
 	agenormvars=[],agevar='age_when_attended_assessment_centre_f21003_0_0',min_dis_bef=-20,max_dis_aft=15):
