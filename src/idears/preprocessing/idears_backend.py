@@ -5,8 +5,11 @@ Module to
 3. Validate and return AUCs, precision scores etc.
 """
 import sys
-sys.path.append('../')
+#sys.path.append('/Users/michaelallwright/Documents/github/ukb/codebase1/src/idears/')
 from scipy import stats
+
+import os
+print(os.listdir())
 
 from preprocessing.data_proc import *
 from models.mlv2 import *
