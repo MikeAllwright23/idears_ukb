@@ -44,10 +44,10 @@ app_mode = st.sidebar.selectbox("Choose the app mode",
 
 with st.spinner('Updating Report...'):
 
-    if app_mode=="SHAP Analysis: The most important features driving the analysis":
+    if app_mode=="SHAP Analysis":
         t1, t2 = st.columns((0.001,1)) 
 
-        t2.header("SHAP Analysis - a proxy for the most important features driving the analysis")
+        t2.header("SHAP Analysis - : The most important features driving the analysis")
 
         feats_full=pd.read_csv(ib.path+'feats_full.csv')
         df_feats_sum=pd.read_csv(ib.path+'df_feats_sum.csv')
