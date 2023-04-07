@@ -18,7 +18,7 @@ ml=ml_funcs()
 class Idears():
 	def __init__(self):
 		
-		self.path='../data/'
+		self.path='../../data/'
 		self.field_names=self.path+'metadata/ukb_field_names.xlsx'
 		self.dis_icd10_dict=\
 		{#'Diabetes':['E10','E11'],
