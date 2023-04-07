@@ -36,7 +36,7 @@ t2.markdown(" **tel:** 07450554693 **| website:** https://www.allwrightanalytics
 #t2.title("Customer Analytics and Optimisation Reports")
 
 ## Data
-app_mode=="SHAP Analysis"
+
 app_mode = st.sidebar.selectbox("Choose the app mode",
 [ "SHAP Analysis", "Population Characteristics","Variable level comparisons"])
 
