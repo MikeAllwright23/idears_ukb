@@ -154,7 +154,7 @@ with st.spinner('Updating Report...'):
         st.write(var_sel+" is "+pval+" for comparing "+diseases+" to control")
 
        
-        fig = px.bar(df_avg_vals_sum, x="age", y="value", color="variable", barmode="group",
+        fig = px.bar(df_avg_vals_sum, y="age", x="value", color="variable", barmode="group",orientation='h',
              facet_row="gender", facet_col="APOE4",
              category_orders={"gender": ["Male","Female"],
                               "age":["50-60","50-70","55-70","60-70"],
