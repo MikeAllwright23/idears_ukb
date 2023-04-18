@@ -41,8 +41,8 @@ app_mode = st.sidebar.selectbox("Choose the app mode",
 ["Introduction","SHAP Analysis"])
 
 @st.cache
-def load_file():
-	  return pd.read_csv(ib.path+file)
+def load_file(file):
+	return pd.read_csv(ib.path+file)
 
 
 with st.spinner('Updating Report...'):  
