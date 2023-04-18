@@ -42,10 +42,10 @@ app_mode = st.sidebar.selectbox("Choose the app mode",
 
 
 
-with st.spinner('Updating Report...'):
+with st.spinner('Updating Report...'):  
 
     if app_mode=="Introduction":
-        intro_markdown = read_markdown_file("../../README.md")
+        intro_markdown = read_markdown_file("README.md")
         st.markdown(intro_markdown, unsafe_allow_html=True)
 
 
