@@ -28,7 +28,7 @@ st.set_page_config(page_title='IDEARS Pipeline',  layout='wide', page_icon=':mac
 
 t1, t2 = st.columns((0.001,1)) 
 
-t2.title("IDEARs")
+t2.title("IDEARs: Integrated Disease Explanation and Risk Scoring Platform")
 t2.markdown(" **tel:** 07450554693 **| website:** https://www.allwrightanalytics.org **| email:** mailto: michael@allwrightanalytics.com")
 
 
@@ -38,7 +38,7 @@ t2.markdown(" **tel:** 07450554693 **| website:** https://www.allwrightanalytics
 ## Data
 
 app_mode = st.sidebar.selectbox("Choose the app mode",
-["Population Characteristics", "SHAP Analysis", "Variable level comparisons"])
+[ "SHAP Analysis", "Population Characteristics","Variable level comparisons"])
 
 
 
@@ -47,7 +47,7 @@ with st.spinner('Updating Report...'):
     if app_mode=="SHAP Analysis":
         t1, t2 = st.columns((0.001,1)) 
 
-        t2.header("SHAP Analysis - a proxy for the most important features driving the analysis")
+        t2.header("SHAP Analysis - : The most important features driving the analysis")
 
         feats_full=pd.read_csv(ib.path+'feats_full.csv')
         df_feats_sum=pd.read_csv(ib.path+'df_feats_sum.csv')
@@ -66,7 +66,7 @@ with st.spinner('Updating Report...'):
 
         diseases=st.selectbox("Choose which diseases to model",list(df_feats_sum['disease'].unique()))
         ages=st.selectbox("Choose which age ranges to model",list(df_feats_sum['age'].unique()))
-        genders=st.selectbox("Choose which age ranges to model",list(df_feats_sum['gender'].unique()))
+        genders=st.selectbox("Choose which genders to model",list(df_feats_sum['gender'].unique()))
         apoes=st.selectbox("Choose which apoes to model",list(df_feats_sum['APOE4'].unique()))
 
         #determine what the breakdown selected is for filter below
