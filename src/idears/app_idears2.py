@@ -40,6 +40,10 @@ def read_markdown_file(markdown_file):
 app_mode = st.sidebar.selectbox("Choose the app mode",
 ["Introduction","SHAP Analysis"])
 
+@st.cache
+def load_file():
+	  return pd.read_csv(ib.path+file)
+
 
 with st.spinner('Updating Report...'):  
 
@@ -54,10 +58,10 @@ with st.spinner('Updating Report...'):
         t2.header("SHAP Analysis - : The most important features in predicting a given disease")
 
         #Import all local files output through IDEARs backend for selection and graphical display
-        feats_full=pd.read_csv(ib.path+'feats_full.csv')
-        df_feats_sum=pd.read_csv(ib.path+'df_feats_sum.csv')
-        df_auc=pd.read_csv(ib.path+'df_auc.csv')
-        df_avg_vals=pd.read_csv(ib.path+'df_avg_vals.csv')
+        feats_full=load_file('feats_full.csv')#pd.read_csv(ib.path+'feats_full.csv')
+        df_feats_sum=load_file('df_feats_sum.csv')#pd.read_csv(ib.path+'df_feats_sum.csv')
+        df_auc=load_file('df_auc.csv')#pd.read_csv(ib.path+'df_auc.csv')
+        df_avg_vals=load_file('df_avg_vals.csv')#pd.read_csv(ib.path+'df_avg_vals.csv')
 
         #st.write(feats_full.head())
 
