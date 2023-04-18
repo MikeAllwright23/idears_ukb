@@ -10,9 +10,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 from numerize import numerize
 
-import sys
-#change sys path based on where code sits for you
-#sys.path.append('../')
 import os
 #st.write(os.listdir('../'))
 from preprocessing.idears_backend import *
@@ -30,31 +27,38 @@ t1, t2 = st.columns((0.001,1))
 
 t2.title("IDEARs: Integrated Disease Explanation and Risk Scoring Platform")
 t2.markdown(" **tel:** 07450554693 **| website:** https://www.allwrightanalytics.org **| email:** mailto: michael@allwrightanalytics.com")
-
+t2.markdown("The Forefront Research Group, University of Sydney https://www.forefrontresearch.org/bmc-bioinformatics-and-statistics/ ")
 
 #t1.image('images/index.png', width = 120)
 #t2.title("Customer Analytics and Optimisation Reports")
 
 ## Data
+from pathlib import Path
+def read_markdown_file(markdown_file):
+    return Path(markdown_file).read_text()
 
 app_mode = st.sidebar.selectbox("Choose the app mode",
-[ "SHAP Analysis", "Population Characteristics","Variable level comparisons"])
+["Introduction","SHAP Analysis"])
 
 
 
 with st.spinner('Updating Report...'):
 
+    if app_mode=="Introduction":
+        intro_markdown = read_markdown_file("../../README.md")
+        st.markdown(intro_markdown, unsafe_allow_html=True)
+
+
     if app_mode=="SHAP Analysis":
         t1, t2 = st.columns((0.001,1)) 
 
-        t2.header("SHAP Analysis - : The most important features driving the analysis")
+        t2.header("SHAP Analysis - : The most important features in predicting a given disease")
 
+        #Import all local files output through IDEARs backend for selection and graphical display
         feats_full=pd.read_csv(ib.path+'feats_full.csv')
         df_feats_sum=pd.read_csv(ib.path+'df_feats_sum.csv')
         df_auc=pd.read_csv(ib.path+'df_auc.csv')
         df_avg_vals=pd.read_csv(ib.path+'df_avg_vals.csv')
-
-        m2, m3, m4, m5,m6 = st.columns((1,1,1,1,1))
 
         #st.write(feats_full.head())
 
@@ -63,7 +67,7 @@ with st.spinner('Updating Report...'):
         df_feats_sum['gender']=df_feats_sum['breakdown'].apply(lambda x:x.split('|')[2])
         df_feats_sum['APOE4']=df_feats_sum['breakdown'].apply(lambda x:x.split('|')[3])
 
-
+        #User select boxes to determine which of a number of variables to select
         diseases=st.selectbox("Choose which diseases to model",list(df_feats_sum['disease'].unique()))
         ages=st.selectbox("Choose which age ranges to model",list(df_feats_sum['age'].unique()))
         genders=st.selectbox("Choose which genders to model",list(df_feats_sum['gender'].unique()))
@@ -71,8 +75,6 @@ with st.spinner('Updating Report...'):
 
         #determine what the breakdown selected is for filter below
         bdown='|'.join([diseases,ages,genders,apoes])
-
-        #st.write(bdown)
 
         #Filter dataframe by breakdown
         mask=(df_feats_sum['breakdown']==bdown)
@@ -153,7 +155,7 @@ with st.spinner('Updating Report...'):
             pval="not significant"
         st.write(var_sel+" is "+pval+" for comparing "+diseases+" to control")
 
-       
+        #this is a multi dimensional chart
         fig = px.bar(df_avg_vals_sum, y="age", x="value", color="variable", barmode="group",orientation='h',
              facet_row="gender", facet_col="APOE4",
              category_orders={"gender": ["Male","Female"],
