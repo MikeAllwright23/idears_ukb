@@ -41,7 +41,6 @@ app_mode = st.sidebar.selectbox("Choose the app mode",
 ["Introduction","SHAP Analysis"])
 
 
-
 with st.spinner('Updating Report...'):  
 
     if app_mode=="Introduction":
@@ -68,10 +67,15 @@ with st.spinner('Updating Report...'):
         df_feats_sum['APOE4']=df_feats_sum['breakdown'].apply(lambda x:x.split('|')[3])
 
         #User select boxes to determine which of a number of variables to select
-        diseases=st.selectbox("Choose which diseases to model",list(df_feats_sum['disease'].unique()))
-        ages=st.selectbox("Choose which age ranges to model",list(df_feats_sum['age'].unique()))
-        genders=st.selectbox("Choose which genders to model",list(df_feats_sum['gender'].unique()))
-        apoes=st.selectbox("Choose which apoes to model",list(df_feats_sum['APOE4'].unique()))
+        diseases=st.selectbox("Choose which diseases to model",list(df_feats_sum['disease'].unique()),
+                              help='Select the disease Alzheimers Disease: AD, Parkinsons: PD etc.')
+        ages=st.selectbox("Choose which age ranges to model",list(df_feats_sum['age'].unique()),
+                          help='Filter the cohort for given ages at baseline')
+        genders=st.selectbox("Choose which genders to model",list(df_feats_sum['gender'].unique()),
+                             help='Filter the cohort for given genders at baseline')
+        apoes=st.selectbox("Choose which apoes to model",list(df_feats_sum['APOE4'].unique()),
+                           help='As APOE4 Carriers are deemed important for neurodegnerative diseases,\
+                             select whether carriers or not or all here')
 
         #determine what the breakdown selected is for filter below
         bdown='|'.join([diseases,ages,genders,apoes])
