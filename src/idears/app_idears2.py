@@ -15,7 +15,7 @@ import plotly.graph_objects as go
 from numerize import numerize
 
 import os
-st.write(os.listdir())
+
 from preprocessing.idears_backend import *
 from results.charts import charts
 
