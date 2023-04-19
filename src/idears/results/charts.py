@@ -40,7 +40,7 @@ class charts():
 
 	def make_econ_bar(self,df,sort_var='mean_shap',err_var=None,recs=None,title='APOE4 Carriers Feature Importance',
 		sub_title="Mean SHAP Score",footer="""Source: UK Biobank""",outfile='chart.png',labels_show=False,
-		tick_vals_use=[0, 0.05, 0.1, 0.15, 0.2],shrink=True,figsize=(3,16),out=True):
+		tick_vals_use=[0, 0.05, 0.1, 0.15, 0.2],shrink=True,figsize=(3,16),out=True,line=True):
 
 		# Setup plot size.
 
@@ -79,8 +79,10 @@ class charts():
 			ax.barh(df_bar['Attribute'], df_bar[sort_var].round(3), color=custom_palette, zorder=2,xerr=df_bar[err_var])#
 
 		# Set custom labels for x-axis
-		ax.set_xticks(tick_vals_use)
-		ax.set_xticklabels(tick_vals_use)
+
+		if tick_vals_use is not None:
+			ax.set_xticks(tick_vals_use)
+			ax.set_xticklabels(tick_vals_use)
 
 		# Reformat x-axis tick labels
 		ax.xaxis.set_tick_params(labeltop=True,      # Put x-axis labels on top
@@ -101,19 +103,20 @@ class charts():
 			ax.set_ylim(-0.5,y_max )
 
 		# Add in line and tag
-		ax.plot([-1.30, .87],                 # Set width of line
-				[1.02, 1.02],                # Set height of line
-				transform=fig.transFigure,   # Set location relative to plot
-				clip_on=False, 
-				color='midnightblue',#E3120B', 
-				linewidth=.6)
-		ax.add_patch(plt.Rectangle((-1.30,1.02),                # Set location of rectangle by lower left corder
-								0.22,                       # Width of rectangle
-								-0.02,                      # Height of rectangle. Negative so it goes down.
-								facecolor='midnightblue',#'#E3120B', 
-								transform=fig.transFigure, 
-								clip_on=False, 
-								linewidth = 0))
+		if line:
+			ax.plot([-1.30, .87],                 # Set width of line
+					[1.02, 1.02],                # Set height of line
+					transform=fig.transFigure,   # Set location relative to plot
+					clip_on=False, 
+					color='midnightblue',#E3120B', 
+					linewidth=.6)
+			ax.add_patch(plt.Rectangle((-1.30,1.02),                # Set location of rectangle by lower left corder
+									0.22,                       # Width of rectangle
+									-0.02,                      # Height of rectangle. Negative so it goes down.
+									facecolor='midnightblue',#'#E3120B', 
+									transform=fig.transFigure, 
+									clip_on=False, 
+									linewidth = 0))
 
 		# Add in title and subtitle
 		ax.text(x=-1.30, y=.96, s=title, transform=fig.transFigure, ha='left', fontsize=13, weight='bold', alpha=.8)

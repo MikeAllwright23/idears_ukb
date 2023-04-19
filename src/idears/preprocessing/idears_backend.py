@@ -13,16 +13,17 @@ print(os.listdir('../../'))
 
 from preprocessing.data_proc import *
 from models.mlv2 import *
+import streamlit as st
 
 dp=data_proc()
 nm=normalisations()
 ml=ml_funcs()
 
 class Idears():
-	def __init__(self):
+	def __init__(self,path='/Users/michaelallwright/Documents/github/ukb/codebase1/src/idears/'):
 		
-		self.path='data/'
-		print(os.listdir())
+		self.path=path+'data/'
+		
 		self.field_names=self.path+'metadata/ukb_field_names.xlsx'
 		self.dis_icd10_dict=\
 		{#'Diabetes':['E10','E11'],
