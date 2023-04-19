@@ -3,17 +3,18 @@
 
 ## Overview
 
-This is the codebase for IDEARs - The Integrated Disease Explanation and Associations Risk Scoring. Its overall architecture is shown below:
+## This is the codebase for IDEARs - The Integrated Disease Explanation and Associations Risk Scoring. Its overall architecture is shown below:
 
 
-<img src="fig2.png"
+<img src="https://images.squarespace-cdn.com/content/v1/60d667ee92c05c669b176362/81ef6e3b-1b58-4773-95f6-3ede87d15456/fig2.png?format=750w"
      alt="Markdown Monster icon"
      style="float: left; margin-right: 10px;" />
 
+##
 
-The code is designed to represent the following situation for prospective studies, which depicts a participant in UKB attending the centre at baseline and then subsequently having a number of outcomes occur
+## The code is designed to represent the following situation for prospective studies, which depicts a participant in UKB attending the centre at baseline and then subsequently having a number of outcomes occur
 
-<img src="fig1.png"
+<img src="https://images.squarespace-cdn.com/content/v1/60d667ee92c05c669b176362/9b22992b-0ac5-4eb8-844e-3aab6d00ed5f/fig1.png?format=1500w"
      alt="Markdown Monster icon"
      style="float: left; margin-right: 10px;" />
 
