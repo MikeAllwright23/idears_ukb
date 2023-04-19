@@ -4,7 +4,7 @@ Created on Tue Aug 24 10:17:07 2021
 @author: Mike Allwright
 """
 
-path=''#/Users/michaelallwright/Documents/github/ukb/codebase1/src/idears/'
+path='src/idears/'#/Users/michaelallwright/Documents/github/ukb/codebase1/src/idears/'
 
 import streamlit as st
 import time
@@ -15,8 +15,8 @@ from numerize import numerize
 
 import os
 st.write(os.listdir())
-from src.preprocessing.idears_backend import *
-from src.results.charts import charts
+from src.idears.preprocessing.idears_backend import *
+from src.idears.results.charts import charts
 
 ib=Idears(path=path)
 ch=charts()
