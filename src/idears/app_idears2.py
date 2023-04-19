@@ -15,8 +15,8 @@ from numerize import numerize
 
 import os
 st.write(os.listdir())
-from preprocessing.idears_backend import *
-from results.charts import charts
+from src.preprocessing.idears_backend import *
+from src.results.charts import charts
 
 ib=Idears(path=path)
 ch=charts()
