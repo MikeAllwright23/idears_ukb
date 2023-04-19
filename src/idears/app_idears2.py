@@ -83,10 +83,13 @@ with st.spinner('Updating Report...'):
         df_feats_sum['APOE4']=df_feats_sum['breakdown'].apply(lambda x:x.split('|')[3])
 
         #User select boxes to determine which of a number of variables to select
+        
+        disease_dict={"Alzheimer's Disease":'AD',"Parkinson's Disease":'PD',"Vascular Dementia":"VD"}
 
         t1, t2 = st.columns((1,1)) 
-        diseases=t1.selectbox("Choose which diseases to model",list(df_feats_sum['disease'].unique()),
-                              help='Select the disease Alzheimers Disease: AD, Parkinsons: PD etc.')
+        diseases=t1.selectbox("Choose which diseases to model",[a for a in disease_dict],
+                              help='Select the disease Alzheimers Disease, Parkinsons etc.')
+        diseases=[disease_dict[d] for d in diseases]
         ages=t2.selectbox("Choose which age ranges to model",list(df_feats_sum['age'].unique()),
               
                           help='Filter the cohort for given ages at baseline')
