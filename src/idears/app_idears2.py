@@ -5,7 +5,8 @@ Created on Tue Aug 24 10:17:07 2021
 """
 
 path='src/idears/'#/Users/michaelallwright/Documents/github/ukb/codebase1/src/idears/'
-
+import sys
+sys.path.append(path)
 import streamlit as st
 import time
 import pandas as pd
@@ -15,8 +16,8 @@ from numerize import numerize
 
 import os
 st.write(os.listdir())
-from src.idears.preprocessing.idears_backend import *
-from src.idears.results.charts import charts
+from preprocessing.idears_backend import *
+from results.charts import charts
 
 ib=Idears(path=path)
 ch=charts()
