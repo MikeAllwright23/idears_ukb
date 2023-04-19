@@ -3,8 +3,11 @@
 Created on Tue Aug 24 10:17:07 2021
 @author: Mike Allwright
 """
-
-path='src/idears/'#/Users/michaelallwright/Documents/github/ukb/codebase1/src/idears/'
+run_local=False
+if run_local:
+    path='/Users/michaelallwright/Documents/github/ukb/codebase1/src/idears/'
+else:
+    path='src/idears/'#
 import sys
 sys.path.append(path)
 import streamlit as st
@@ -87,9 +90,9 @@ with st.spinner('Updating Report...'):
         disease_dict={"Alzheimer's Disease":'AD',"Parkinson's Disease":'PD',"Vascular Dementia":"VD"}
 
         t1, t2 = st.columns((1,1)) 
-        diseases=t1.selectbox("Choose which diseases to model",[a for a in disease_dict],
+        dis_name=t1.selectbox("Choose which diseases to model",[a for a in disease_dict],
                               help='Select the disease Alzheimers Disease, Parkinsons etc.')
-        diseases=[disease_dict[d] for d in diseases]
+        diseases=disease_dict[dis_name] 
         ages=t2.selectbox("Choose which age ranges to model",list(df_feats_sum['age'].unique()),
               
                           help='Filter the cohort for given ages at baseline')
@@ -119,7 +122,7 @@ with st.spinner('Updating Report...'):
         else:
             tick_vals_use=[0, 0.05, 0.1, 0.15, 0.2]
 
-        fig,df_bar=ch.make_econ_bar(df_s,sort_var='mean_shap',err_var=None,recs=None,title='APOE4 Carriers Feature Importance',
+        fig,df_bar=ch.make_econ_bar(df_s,sort_var='mean_shap',err_var=None,recs=None,title=dis_name,
 		sub_title="Mean SHAP Score",footer="""Source: UK Biobank""",outfile='chart.png',labels_show=False,
 		tick_vals_use=tick_vals_use,shrink=True,figsize=(3,16),out=True)
 
@@ -199,7 +202,7 @@ with st.spinner('Updating Report...'):
             pval="not significant"
         
       
-        title="In a comparison of "+var_sel+" between "+diseases+" cases and controls for age ranges "+str(ages)+" and genders "+str(genders)+" and APOE4 carrier types: "+str(apoes)+"."
+        title="In a comparison of "+var_sel+" between "+dis_name+" cases and controls for age ranges "+str(ages)+" and genders "+str(genders)+" and APOE4 carrier types: "+str(apoes)+"."
         part_two="In this case "+var_sel+" is "+pval+" for comparing "+diseases+" to control."
         fig = px.bar(df_avg_vals_sum, y="variable", x="value", color="variable",orientation='h',text='value',title=title)
 
