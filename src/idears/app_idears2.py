@@ -107,6 +107,12 @@ with st.spinner('Updating Report...'):
         #determine what the breakdown selected is for filter below
         bdown='|'.join([diseases,ages,genders,apoes])
 
+        mask=(df_auc['breakdown']==bdown)
+        df_auc_s=df_auc.loc[mask,]
+
+        fig_auc = px.box(df_auc_s, y="auc")
+        st.pyplot(fig_auc)
+
         #Filter dataframe by breakdown
         mask=(df_feats_sum['breakdown']==bdown)
         df_s=df_feats_sum.loc[mask,]
@@ -238,6 +244,8 @@ with st.spinner('Updating Report...'):
 
         g1.pyplot(fig)
         #g1.plotly_chart(fig, use_container_width=True) 
+
+        #finally show auc variables
        
 
 
