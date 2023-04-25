@@ -111,7 +111,9 @@ with st.spinner('Updating Report...'):
         df_auc_s=df_auc.loc[mask,]
 
         fig_auc = px.box(df_auc_s, y="auc")
-        st.pyplot(fig_auc)
+
+        st.plotly_chart(fig_auc, use_container_width=True)
+        
 
         #Filter dataframe by breakdown
         mask=(df_feats_sum['breakdown']==bdown)
