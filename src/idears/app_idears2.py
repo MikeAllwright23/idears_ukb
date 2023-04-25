@@ -3,7 +3,7 @@
 Created on Tue Aug 24 10:17:07 2021
 @author: Mike Allwright
 """
-run_local=False
+run_local=True
 if run_local:
     path='/Users/michaelallwright/Documents/github/ukb/codebase1/src/idears/'
 else:
@@ -87,7 +87,8 @@ with st.spinner('Updating Report...'):
 
         #User select boxes to determine which of a number of variables to select
         
-        disease_dict={"Alzheimer's Disease":'AD',"Parkinson's Disease":'PD',"Vascular Dementia":"VD"}
+        disease_dict={"Alzheimer's Disease":'AD',"Parkinson's Disease":'PD',"Vascular Dementia":"VD","Motor Neurone Disease":"MND",
+                      "Frontotemporal Dementia":"FTD"}
 
         t1, t2 = st.columns((1,1)) 
         dis_name=t1.selectbox("Choose which diseases to model",[a for a in disease_dict],
