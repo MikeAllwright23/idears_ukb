@@ -107,10 +107,16 @@ with st.spinner('Updating Report...'):
         #determine what the breakdown selected is for filter below
         bdown='|'.join([diseases,ages,genders,apoes])
 
+
+        st.subheader("AUROC score for selected combination:")
+
         mask=(df_auc['breakdown']==bdown)
         df_auc_s=df_auc.loc[mask,]
-
         fig_auc = px.box(df_auc_s, y="auc")
+
+        auc_mean=str(np.round(df_auc_s['auc'].mean(),2))
+        auc_std=str(np.round(df_auc_s['auc'].std(),2))
+        st.write("Mean AUC +/- standard deviation: "+auc_mean+" +/- "+auc_std)
 
         st.plotly_chart(fig_auc, use_container_width=True)
         
