@@ -3,7 +3,7 @@
 Created on Tue Aug 24 10:17:07 2021
 @author: Mike Allwright
 """
-run_local=True
+run_local=False
 if run_local:
     path='/Users/michaelallwright/Documents/github/ukb/codebase1/src/idears/'
 else:
