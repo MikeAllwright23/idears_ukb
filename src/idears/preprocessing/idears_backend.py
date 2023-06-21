@@ -5,11 +5,11 @@ Module to
 3. Validate and return AUCs, precision scores etc.
 """
 import sys
-#sys.path.append('/Users/michaelallwright/Documents/github/ukb/codebase1/src/idears/')
+sys.path.append('/Users/michaelallwright/Documents/github/ukb/codebase1/src/idears/')
 from scipy import stats
 
 import os
-print(os.listdir('../../'))
+#print(os.listdir('../../'))
 
 from preprocessing.data_proc import *
 from models.mlv2 import *
@@ -136,7 +136,7 @@ class Idears():
 				df_fields_mod=self.df_fields.loc[mask,]
 				
 				cols=[c for c in df3.columns if c=='eid' or c==dis or c in self.gend_dict_extcols[gen] or\
-				c in list(self.df_fields_mod['col.name'])]
+				c in list(df_fields_mod['col.name'])]
 				df3=df3[cols]
 				df3=self.rename_cols(df3)
 			
@@ -464,19 +464,24 @@ if __name__=='__main__':
 	ib=Idears()
 	print("start")
 	df_dict=ib.create_train_test(fields_include_use=["All"],diseases=None,df=None,ages=None,gends=None,apoe4s=None)#{'AD':['G30']}
-	
-	if run_shap:
-		print("dict done")
-		df_auc,df_feats_sum=ib.get_aucs_all(df_dict,ib.gend_dict_extcols,ib.dis_exc_vars_dict,
-					diseases=None,iters=2,ages=None,gends=None,apoe4s=None)#{'AD':['G30']}
-		
-		#output the data locally for input to streamlit app
-		df_auc.to_csv(ib.path+'df_auc.csv')
-		df_feats_sum.to_csv(ib.path+'df_feats_sum.csv')
+	df_dict_mod=ib.create_train_test(fields_include_use=["Modifiable"],diseases=None,df=None,ages=None,gends=None,apoe4s=None)
 
-	df_feats_sum=pd.read_csv(ib.path+'df_feats_sum.csv')
-	cols_compare=list(df_feats_sum.sort_values(by='mean_shap',ascending=False)['Attribute_original'])
-	#print(cols_compare)
-	df_avg_vals=ib.get_avg_vals(df_dict,cols_compare,diseases=None)#{'AD':['G30']})
-	df_avg_vals.to_csv(ib.path+'df_avg_vals.csv')
+	print("dict done")
+
+	for i,df_dic in enumerate([df_dict,df_dict_mod]):
+	
+		if run_shap:
+			
+			df_auc,df_feats_sum=ib.get_aucs_all(df_dic,ib.gend_dict_extcols,ib.dis_exc_vars_dict,
+						diseases=None,iters=2,ages=None,gends=None,apoe4s=None)#{'AD':['G30']}
+			
+			#output the data locally for input to streamlit app
+			df_auc.to_csv(ib.path+'df_auc'+str(i)+'.csv')
+			df_feats_sum.to_csv(ib.path+'df_feats_sum.csv')
+
+		df_feats_sum=pd.read_csv(ib.path+'df_feats_sum'+str(i)+'.csv')
+		cols_compare=list(df_feats_sum.sort_values(by='mean_shap',ascending=False)['Attribute_original'])
+		#print(cols_compare)
+		df_avg_vals=ib.get_avg_vals(df_dic,cols_compare,diseases=None)#{'AD':['G30']})
+		df_avg_vals.to_csv(ib.path+'df_avg_vals'+str(i)+'.csv')
    
