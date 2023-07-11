@@ -1,6 +1,7 @@
 Boruta==0.3
 d3blocks==1.2.10
 icd10_cm==0.0.5
+numba==0.53
 importlib_metadata==4.11.3
 lightgbm==3.3.4
 matplotlib==3.5.1
