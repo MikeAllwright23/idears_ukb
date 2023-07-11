@@ -1,3 +1,5 @@
+numpy==1.21.4
+pandas==1.5.2
 Boruta==0.3
 d3blocks==1.2.10
 icd10_cm==0.0.5
@@ -7,8 +9,6 @@ lightgbm==3.3.4
 matplotlib==3.5.1
 miceforest==5.6.3
 numerize==0.12
-numpy==1.21.4
-pandas==1.5.2
 plotly==5.13.1
 pytest==7.1.2
 scikit_learn==1.2.2
