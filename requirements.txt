@@ -16,3 +16,4 @@ Sphinx
 statsmodels
 streamlit
 xgboost
+openpyxl
