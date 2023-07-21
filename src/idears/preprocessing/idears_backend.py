@@ -31,9 +31,10 @@ class Idears():
 		 'FTD': ['G310'],
 		 'VD': ['F01'],
 		 'AD': ['G30'],
-		 'PD': ['G20'],
-		 'Other': ['G31'],
-		 'All': ['G20', 'G30', 'G31']}
+		 'PD': ['G20']}
+		#,
+		 #'Other': ['G31'],
+		 #'All': ['G20', 'G30', 'G31']}
 		
 		self.dis_exc_vars_dict={'Diabetes':'diabetes'}
 
@@ -459,7 +460,7 @@ if __name__=='__main__':
 	"""
 	Generate all key data so we can run and output to a given location
 	"""
-	run_shap=False
+	run_shap=True
 
 	ib=Idears()
 	print("start")
@@ -468,7 +469,13 @@ if __name__=='__main__':
 
 	print("dict done")
 
-	for i,df_dic in enumerate([df_dict,df_dict_mod]):
+	df_auc_all=pd.DataFrame([])
+	df_feats_sum_all=pd.DataFrame([])
+	df_auc_all=pd.DataFrame([])
+	df_avg_vals_all=pd.DataFrame([])
+	fields_use=['Modifiable','All']
+
+	for i,df_dic in enumerate([df_dict_mod,df_dict]):
 	
 		if run_shap:
 			
@@ -476,12 +483,23 @@ if __name__=='__main__':
 						diseases=None,iters=2,ages=None,gends=None,apoe4s=None)#{'AD':['G30']}
 			
 			#output the data locally for input to streamlit app
-			df_auc.to_csv(ib.path+'df_auc'+str(i)+'.csv')
-			df_feats_sum.to_csv(ib.path+'df_feats_sum.csv')
+			df_auc['fields']=fields_use[i]
+			df_feats_sum['fields']=fields_use[i]
 
-		df_feats_sum=pd.read_csv(ib.path+'df_feats_sum'+str(i)+'.csv')
+			df_auc_all=pd.concat([df_auc_all,df_auc],axis=0)
+			df_feats_sum_all=pd.concat([df_feats_sum_all,df_feats_sum],axis=0)
+			#df_auc.to_csv(ib.path+'df_auc'+str(i)+'.csv')
+			#df_feats_sum.to_csv(ib.path+'df_feats_sum.'+str(i)+'.csv')
+
+		#df_feats_sum=pd.read_csv(ib.path+'df_feats_sum.csv')
 		cols_compare=list(df_feats_sum.sort_values(by='mean_shap',ascending=False)['Attribute_original'])
 		#print(cols_compare)
 		df_avg_vals=ib.get_avg_vals(df_dic,cols_compare,diseases=None)#{'AD':['G30']})
-		df_avg_vals.to_csv(ib.path+'df_avg_vals'+str(i)+'.csv')
+		df_avg_vals['fields']=fields_use[i]
+		df_avg_vals_all=pd.concat([df_avg_vals_all,df_avg_vals],axis=0)
+		#df_avg_vals.to_csv(ib.path+'df_avg_vals'+str(i)+'.csv')
+
+	df_auc_all.to_csv(ib.path+'df_auc.csv')
+	df_feats_sum_all.to_csv(ib.path+'df_feats_sum.csv')
+	df_avg_vals_all.to_csv(ib.path+'df_avg_vals.csv')
    
