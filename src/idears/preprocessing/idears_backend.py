@@ -12,6 +12,7 @@ import os
 #print(os.listdir('../../'))
 
 from preprocessing.data_proc import *
+from preprocessing.varnames import bloodcols
 from models.mlv2 import *
 import streamlit as st
 
@@ -140,6 +141,13 @@ class Idears():
 				c in list(df_fields_mod['col.name'])]
 				df3=df3[cols]
 				df3=self.rename_cols(df3)
+			elif fields_include_use==["Blood"]:
+
+				cols=[c for c in df3.columns if c=='eid' or c==dis or c in self.gend_dict_extcols[gen] or\
+				c in bloodcols]
+				df3=df3[cols]
+				df3=self.rename_cols(df3)
+
 			
 			else:
 				#otherwise the fields used are the ones specified
@@ -464,8 +472,10 @@ if __name__=='__main__':
 
 	ib=Idears()
 	print("start")
+	df_dict_blood=ib.create_train_test(fields_include_use=["Blood"],diseases=None,df=None,ages=None,gends=None,apoe4s=None)
 	df_dict=ib.create_train_test(fields_include_use=["All"],diseases=None,df=None,ages=None,gends=None,apoe4s=None)#{'AD':['G30']}
 	df_dict_mod=ib.create_train_test(fields_include_use=["Modifiable"],diseases=None,df=None,ages=None,gends=None,apoe4s=None)
+	
 
 	print("dict done")
 
@@ -473,9 +483,9 @@ if __name__=='__main__':
 	df_feats_sum_all=pd.DataFrame([])
 	df_auc_all=pd.DataFrame([])
 	df_avg_vals_all=pd.DataFrame([])
-	fields_use=['Modifiable','All']
+	fields_use=['Blood','Modifiable','All']
 
-	for i,df_dic in enumerate([df_dict_mod,df_dict]):
+	for i,df_dic in enumerate([df_dict_blood,df_dict_mod,df_dict]):
 	
 		if run_shap:
 			

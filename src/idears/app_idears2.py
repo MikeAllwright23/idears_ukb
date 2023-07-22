@@ -115,7 +115,7 @@ with st.spinner('Updating Report...'):
 
         st.subheader("AUCROC score for selected combination:")
 
-        mask=(df_auc['breakdown']==bdown)#&(df_auc['fields']==fields)
+        mask=(df_auc['breakdown']==bdown)&(df_auc['fields']==fields)
         df_auc_s=df_auc.loc[mask,]
         fig_auc = px.box(df_auc_s, y="auc")
 
