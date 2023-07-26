@@ -47,7 +47,7 @@ def read_markdown_file(markdown_file):
 app_mode = st.sidebar.selectbox("Choose the app mode",
 ["Introduction","SHAP Analysis"])
 
-@st.cache_data(allow_output_mutation=True) # check this!!
+@st.cache_data # check this!!
 def load_file(file):
 	return pd.read_csv(ib.path+file)
 
