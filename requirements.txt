@@ -6,7 +6,6 @@ lightgbm==3.3.4
 matplotlib==3.5.1
 miceforest==5.6.3
 numerize==0.12
-numpy==1.23
 pandas==1.5.2
 plotly==5.13.1
 pytest==7.1.2
@@ -19,3 +18,4 @@ Sphinx==5.0.2
 statsmodels==0.13.2
 streamlit==1.17.0
 xgboost==1.7.2
+numpy==1.23
