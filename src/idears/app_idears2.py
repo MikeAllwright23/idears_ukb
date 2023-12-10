@@ -26,15 +26,16 @@ ib=Idears(path=path)
 ch=charts()
 
 
-st.set_page_config(page_title='IDEARS Pipeline',  layout='wide', page_icon=':machine learning:')
+st.set_page_config(page_title='IDEARS Platform',  layout='wide', page_icon=':machine learning:')
 
 #this is the header
 
 t1, t2 = st.columns((0.001,1)) 
 
 t2.title("IDEARs: Integrated Disease Explanation and Risk Scoring Platform")
-t2.markdown(" **tel:** 07450554693 **| website:** https://www.allwrightanalytics.org **| email:** mailto: michael@allwrightanalytics.com")
 t2.markdown("The Forefront Research Group, University of Sydney https://www.forefrontresearch.org/bmc-bioinformatics-and-statistics/ ")
+t2.markdown(" **tel:** + 44 7450554693 **| website:** https://www.alchem-ai.org **| email:** mailto: michael@alchem-ai.org")
+
 
 #t1.image('images/index.png', width = 120)
 #t2.title("Customer Analytics and Optimisation Reports")
