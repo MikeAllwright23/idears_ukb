@@ -78,8 +78,8 @@ st.set_page_config(page_title='SWAST - Handover Delays',  layout='wide', page_ic
 
 t1, t2 = st.columns((0.001,1)) 
 
-t2.title('IDEARS: Integrated Disease Explanation And Risk Scoring Platform for the UKB')
-t2.markdown(" **tel:** 07450554693 **| website:** https://www.allwrightanalytics.org **| email:** mailto: michael@allwrightanalytics.org")
+t2.title('IDEARS: Integrated Disease Explanation And Risk Scoring Platform for the UKB:')
+t2.markdown(" **tel:** +44 7450554693 **| website:** https://www.alchem-ai.org **| email:** mailto: michael@alchem-ai.org")
 
 
 #t1.image('images/index.png', width = 120)
