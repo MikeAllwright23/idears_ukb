@@ -12,6 +12,7 @@ import os
 #print(os.listdir('../../'))
 
 from preprocessing.data_proc import *
+from preprocessing.varnames import bloodcols
 from models.mlv2 import *
 import streamlit as st
 
@@ -31,9 +32,10 @@ class Idears():
 		 'FTD': ['G310'],
 		 'VD': ['F01'],
 		 'AD': ['G30'],
-		 'PD': ['G20'],
-		 'Other': ['G31'],
-		 'All': ['G20', 'G30', 'G31']}
+		 'PD': ['G20']}
+		#,
+		 #'Other': ['G31'],
+		 #'All': ['G20', 'G30', 'G31']}
 		
 		self.dis_exc_vars_dict={'Diabetes':'diabetes'}
 
@@ -139,6 +141,13 @@ class Idears():
 				c in list(df_fields_mod['col.name'])]
 				df3=df3[cols]
 				df3=self.rename_cols(df3)
+			elif fields_include_use==["Blood"]:
+
+				cols=[c for c in df3.columns if c=='eid' or c==dis or c in self.gend_dict_extcols[gen] or\
+				c in bloodcols]
+				df3=df3[cols]
+				df3=self.rename_cols(df3)
+
 			
 			else:
 				#otherwise the fields used are the ones specified
@@ -459,16 +468,24 @@ if __name__=='__main__':
 	"""
 	Generate all key data so we can run and output to a given location
 	"""
-	run_shap=False
+	run_shap=True
 
 	ib=Idears()
 	print("start")
+	df_dict_blood=ib.create_train_test(fields_include_use=["Blood"],diseases=None,df=None,ages=None,gends=None,apoe4s=None)
 	df_dict=ib.create_train_test(fields_include_use=["All"],diseases=None,df=None,ages=None,gends=None,apoe4s=None)#{'AD':['G30']}
 	df_dict_mod=ib.create_train_test(fields_include_use=["Modifiable"],diseases=None,df=None,ages=None,gends=None,apoe4s=None)
+	
 
 	print("dict done")
 
-	for i,df_dic in enumerate([df_dict,df_dict_mod]):
+	df_auc_all=pd.DataFrame([])
+	df_feats_sum_all=pd.DataFrame([])
+	df_auc_all=pd.DataFrame([])
+	df_avg_vals_all=pd.DataFrame([])
+	fields_use=['Blood','Modifiable','All']
+
+	for i,df_dic in enumerate([df_dict_blood,df_dict_mod,df_dict]):
 	
 		if run_shap:
 			
@@ -476,12 +493,23 @@ if __name__=='__main__':
 						diseases=None,iters=2,ages=None,gends=None,apoe4s=None)#{'AD':['G30']}
 			
 			#output the data locally for input to streamlit app
-			df_auc.to_csv(ib.path+'df_auc'+str(i)+'.csv')
-			df_feats_sum.to_csv(ib.path+'df_feats_sum.csv')
+			df_auc['fields']=fields_use[i]
+			df_feats_sum['fields']=fields_use[i]
 
-		df_feats_sum=pd.read_csv(ib.path+'df_feats_sum'+str(i)+'.csv')
+			df_auc_all=pd.concat([df_auc_all,df_auc],axis=0)
+			df_feats_sum_all=pd.concat([df_feats_sum_all,df_feats_sum],axis=0)
+			#df_auc.to_csv(ib.path+'df_auc'+str(i)+'.csv')
+			#df_feats_sum.to_csv(ib.path+'df_feats_sum.'+str(i)+'.csv')
+
+		#df_feats_sum=pd.read_csv(ib.path+'df_feats_sum.csv')
 		cols_compare=list(df_feats_sum.sort_values(by='mean_shap',ascending=False)['Attribute_original'])
 		#print(cols_compare)
 		df_avg_vals=ib.get_avg_vals(df_dic,cols_compare,diseases=None)#{'AD':['G30']})
-		df_avg_vals.to_csv(ib.path+'df_avg_vals'+str(i)+'.csv')
+		df_avg_vals['fields']=fields_use[i]
+		df_avg_vals_all=pd.concat([df_avg_vals_all,df_avg_vals],axis=0)
+		#df_avg_vals.to_csv(ib.path+'df_avg_vals'+str(i)+'.csv')
+
+	df_auc_all.to_csv(ib.path+'df_auc.csv')
+	df_feats_sum_all.to_csv(ib.path+'df_feats_sum.csv')
+	df_avg_vals_all.to_csv(ib.path+'df_avg_vals.csv')
    

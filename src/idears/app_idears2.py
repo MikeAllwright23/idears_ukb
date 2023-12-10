@@ -48,7 +48,7 @@ def read_markdown_file(markdown_file):
 app_mode = st.sidebar.selectbox("Choose the app mode",
 ["Introduction","SHAP Analysis"])
 
-@st.cache(allow_output_mutation=True)
+@st.cache_data # check this!!
 def load_file(file):
 	return pd.read_csv(ib.path+file)
 
@@ -104,6 +104,11 @@ with st.spinner('Updating Report...'):
         apoes=t2.selectbox("Choose which apoes to model",list(df_feats_sum['APOE4'].unique()),
                            help='As APOE4 Carriers are deemed important for neurodegnerative diseases,\
                              select whether carriers or not or all here')
+        
+
+        t1, t2 = st.columns((1,1)) 
+        fields=t1.selectbox("Choose which variable sets model",list(df_feats_sum['fields'].unique()),
+                             help='Filter the cohort for given genders at baseline')
 
         #determine what the breakdown selected is for filter below
         bdown='|'.join([diseases,ages,genders,apoes])
@@ -111,7 +116,7 @@ with st.spinner('Updating Report...'):
 
         st.subheader("AUCROC score for selected combination:")
 
-        mask=(df_auc['breakdown']==bdown)
+        mask=(df_auc['breakdown']==bdown)&(df_auc['fields']==fields)
         df_auc_s=df_auc.loc[mask,]
         fig_auc = px.box(df_auc_s, y="auc")
 
@@ -123,7 +128,7 @@ with st.spinner('Updating Report...'):
         
 
         #Filter dataframe by breakdown
-        mask=(df_feats_sum['breakdown']==bdown)
+        mask=(df_feats_sum['breakdown']==bdown)&(df_feats_sum['fields']==fields)
         df_s=df_feats_sum.loc[mask,]
 
         #st.write(df_s)
@@ -154,10 +159,10 @@ with st.spinner('Updating Report...'):
         
 
         if var_compare=='gender':
-            mask=(df_feats_sum['disease']==diseases)&(df_feats_sum['age']==ages)&(df_feats_sum['APOE4']==apoes)
+            mask=(df_feats_sum['disease']==diseases)&(df_feats_sum['age']==ages)&(df_feats_sum['APOE4']==apoes)&(df_feats_sum['fields']==fields)
             df_feats_sum_apoe=pd.DataFrame(df_feats_sum.loc[mask,].groupby(['Attribute',var_compare])['mean_shap'].mean().unstack(var_compare)).reset_index()
         elif var_compare=='APOE4':
-            mask=(df_feats_sum['disease']==diseases)&(df_feats_sum['age']==ages)&(df_feats_sum['gender']==genders)
+            mask=(df_feats_sum['disease']==diseases)&(df_feats_sum['age']==ages)&(df_feats_sum['gender']==genders)&(df_feats_sum['fields']==fields)
             df_feats_sum_apoe=pd.DataFrame(df_feats_sum.loc[mask,].groupby(['Attribute',var_compare])['mean_shap'].mean().unstack(var_compare)).reset_index()
            
 
